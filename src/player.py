@@ -1,15 +1,24 @@
 import pygame
 from src.circleshape import CircleShape
-from src.shot import Shot
-from src.constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, PLAYER_SHOOT_COOLDOWN, SCREEN_HEIGHT,SCREEN_WIDTH
+from src.shot import Shot,Bomb, Barrier
+from src.constants import (PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, 
+                           PLAYER_SHOOT_COOLDOWN, SCREEN_HEIGHT,SCREEN_WIDTH, PLAYER_BOMB_COOLDOWN
+                          ) 
+
 
 
 class Player(CircleShape):
 
     def __init__(self,x,y):
         super().__init__(x,y,PLAYER_RADIUS)
-        self.rotation = 0
-        self.cooldown = 0   
+        self.rotation:float = 0
+        self.shoot_cooldown:float = 0
+        self.bomb_cooldown:float = 0
+        self.n_bombs:int = 3
+        self.n_barriers:int = 1
+
+
+        self.barrier_sound = pygame.mixer.Sound("./assets/barrier.mp3")
 
     def triangle(self)->list[pygame.Vector2]:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -33,24 +42,57 @@ class Player(CircleShape):
         self.position.y = self.position.y % SCREEN_HEIGHT
     
     def shot(self):
-        if self.cooldown>0:
+        if self.shoot_cooldown>0:
             return
         new_shot = Shot(self.position[0], self.position[1])
         new_shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
-        self.cooldown = PLAYER_SHOOT_COOLDOWN
+        self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
+
+       
+    def drop_bomb(self):
+
+        if self.n_bombs<=0:
+            print('no bombs available')
+            return 
+        if self.bomb_cooldown>0:
+            print('bomb is in cooldown')
+            return
+
+        new_bomb = Bomb(self.position[0], self.position[1])
+        new_bomb.velocity = pygame.Vector2(0, 0)
+        self.bomb_cooldown = PLAYER_BOMB_COOLDOWN
+        self.n_bombs -= 1
+
+    def activate_barrier(self):
+        if self.n_barriers<=0:
+            return
+        print('activate barrier')
+        barrier = Barrier(player=self)
+        barrier.velocity = pygame.Vector2(0, 0)
+        self.n_barriers -=1
+        pygame.mixer.Sound.play(self.barrier_sound)
+        pygame.mixer.music.stop()
 
     def update(self, dt):
-            self.cooldown -= dt
+            self.shoot_cooldown -= dt
+            self.bomb_cooldown -= dt
 
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_a] or keys[pygame.K_LEFT]:
                 self.rotate(-dt)
+            
             if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
                 self.rotate(dt)
+            
             if keys[pygame.K_w] or keys[pygame.K_UP]:
                 self.move(dt)
-            # if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            #     self.move(-dt)
+            
+            if keys[pygame.K_q]:
+                self.drop_bomb()
+            
             if keys[pygame.K_SPACE]:
                 self.shot()
+            
+            if keys[pygame.K_e]:
+                self.activate_barrier()
