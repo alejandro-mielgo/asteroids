@@ -16,9 +16,9 @@ class Player(CircleShape):
         self.bomb_cooldown:float = 0
         self.n_bombs:int = 3
         self.n_barriers:int = 1
+        self.health = 3
 
-
-        self.barrier_sound = pygame.mixer.Sound("./assets/barrier.mp3")
+        self.no_ammo_sound = pygame.mixer.Sound("./assets/no_ammo.mp3")
 
     def triangle(self)->list[pygame.Vector2]:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -51,12 +51,14 @@ class Player(CircleShape):
        
     def drop_bomb(self):
 
+        if self.bomb_cooldown>0:
+            return  
         if self.n_bombs<=0:
             print('no bombs available')
-            return 
-        if self.bomb_cooldown>0:
-            print('bomb is in cooldown')
+            pygame.mixer.Sound.play(self.no_ammo_sound)
+            pygame.mixer.music.stop()
             return
+ 
 
         new_bomb = Bomb(self.position[0], self.position[1])
         new_bomb.velocity = pygame.Vector2(0, 0)
@@ -66,12 +68,10 @@ class Player(CircleShape):
     def activate_barrier(self):
         if self.n_barriers<=0:
             return
-        print('activate barrier')
         barrier = Barrier(player=self)
         barrier.velocity = pygame.Vector2(0, 0)
         self.n_barriers -=1
-        pygame.mixer.Sound.play(self.barrier_sound)
-        pygame.mixer.music.stop()
+
 
     def update(self, dt):
             self.shoot_cooldown -= dt

@@ -48,8 +48,10 @@ def main():
         
         for asteroid in asteroids:
             if player.check_collision(asteroid) == True:
-                print('collision detected')
-                running=False
+                player.health-=1
+                print(f"health down to {player.health}")
+                if player.health<=0:
+                    running=False
             
             for shot in shots:
                 if shot.check_collision(asteroid) == True:
