@@ -1,7 +1,7 @@
 import pygame
 import random
-from asteroid import Asteroid
-from constants import *
+from src.asteroid import Asteroid
+from src.constants import *
 
 
 class AsteroidField(pygame.sprite.Sprite):
@@ -28,8 +28,10 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
     ]
 
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self, self.containers)
+    containers: tuple[pygame.sprite.Group, ...] = ()
+
+    def __init__(self,containers):
+        pygame.sprite.Sprite.__init__(self, containers)
         self.spawn_timer = 0.0
 
     def spawn(self, radius, position, velocity):
