@@ -12,6 +12,10 @@ def main():
 
     pygame.init()
     pygame.mixer.init()
+    pygame.mixer.music.load("./assets/music.mp3")
+    pygame.mixer.music.set_volume(0.5)  
+    pygame.mixer.music.play(-1)         
+
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     dt = 0
@@ -27,39 +31,55 @@ def main():
     Shot.containers = (shots,drawable,updatable)
     Bomb.containers = (shots,drawable,updatable)
     Barrier.containers = (shots,drawable,updatable)
+    AsteroidField.containers = (updatable,)
 
-    Shot.load_sound()
-    Bomb.load_sound()
-    Barrier.load_sound()
+    Shot.load_sound("./assets/shot.mp3")
+    Bomb.load_sound("./assets/bomb.mp3")
+    Barrier.load_sound("./assets/barrier.mp3")
+    Asteroid.load_sound("./assets/asteroid_explossion.mp3")
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    asteroidfield = AsteroidField((updatable,))
+    asteroidfield = AsteroidField()
 
     running:bool = True
+    paused:bool = False
 
     while running:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = not paused
         
+        if paused:
+            screen.fill("black")
+            print('paused game')
+            pygame.display.flip()
+            dt = clock.tick(5) / 1000
+            continue  
+
+
         updatable.update(dt)
         
-        screen.fill("black")
-        
+ 
         for asteroid in asteroids:
+            for shot in shots:
+                if shot.check_collision(asteroid) == True:
+                    asteroid.split()
+                    if isinstance(shot,Shot):
+                        shot.kill()
+
             if player.check_collision(asteroid) == True:
                 player.health-=1
                 print(f"health down to {player.health}")
                 if player.health<=0:
                     running=False
             
-            for shot in shots:
-                if shot.check_collision(asteroid) == True:
-                    asteroid.split()
-                    if type(shot) is Shot:
-                        shot.kill()
 
-
+        screen.fill("black")
+        
         for obj in drawable:
             obj.draw(screen)
         
@@ -68,7 +88,6 @@ def main():
         dt = clock.tick(60) / 1000
     
     pygame.quit()
-    return 0
 
 
 if __name__=="__main__":

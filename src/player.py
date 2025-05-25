@@ -21,16 +21,18 @@ class Player(CircleShape):
         self.no_ammo_sound = pygame.mixer.Sound("./assets/no_ammo.mp3")
 
     def triangle(self)->list[pygame.Vector2]:
+        visual_radius:float = self.radius + 10
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
-        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
+        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * visual_radius / 1.5
 
-        a = pygame.Vector2(self.position + forward * self.radius)
-        b = pygame.Vector2(self.position - forward * self.radius - right)
-        c = pygame.Vector2(self.position - forward * self.radius + right)  
+        a = pygame.Vector2(self.position + forward*1.4 * visual_radius)
+        b = pygame.Vector2(self.position - forward/2 * visual_radius - right)
+        c = pygame.Vector2(self.position - forward/2 * visual_radius + right)  
         return [a, b, c]
     
     def draw(self,screen):
         pygame.draw.polygon(screen, 'white', self.triangle(), 2)
+        pygame.draw.circle(screen,'white',self.position,self.radius,1)
 
     def rotate(self,dt):
         self.rotation += PLAYER_TURN_SPEED * dt
