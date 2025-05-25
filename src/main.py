@@ -6,26 +6,26 @@ from src.shot import Shot, Bomb, Barrier
 from src.constants import *
 
 
-def main():
-
-    print('Starting Asteroids!')
+def load_sounds() -> None:
 
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.load("./assets/music.mp3")
     pygame.mixer.music.set_volume(0.5)  
-    pygame.mixer.music.play(-1)         
+    pygame.mixer.music.play(-1)  
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    clock = pygame.time.Clock()
-    dt = 0
+    Shot.load_sound("./assets/shot.mp3")
+    Bomb.load_sound("./assets/bomb.mp3")
+    Barrier.load_sound("./assets/barrier.mp3")
+    Asteroid.load_sound("./assets/asteroid_explossion.mp3")
 
+    
+def create_containers()->tuple:
     updatable  = pygame.sprite.Group()
     drawable  = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
 
-    
     Player.containers = (updatable,drawable)
     Asteroid.containers = (asteroids,updatable,drawable)
     Shot.containers = (shots,drawable,updatable)
@@ -33,16 +33,25 @@ def main():
     Barrier.containers = (shots,drawable,updatable)
     AsteroidField.containers = (updatable,)
 
-    Shot.load_sound("./assets/shot.mp3")
-    Bomb.load_sound("./assets/bomb.mp3")
-    Barrier.load_sound("./assets/barrier.mp3")
-    Asteroid.load_sound("./assets/asteroid_explossion.mp3")
+    return updatable,drawable, asteroids, shots
 
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
+def main():
+
+    print('Starting Asteroids!')
+    load_sounds()        
+
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    clock = pygame.time.Clock()
+    dt = 0
+
+    updatable,drawable, asteroids, shots = create_containers()
+    player:Player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
 
     running:bool = True
     paused:bool = False
+    exp:int = 0
 
     while running:
 
@@ -61,13 +70,15 @@ def main():
             continue  
 
 
-        updatable.update(dt)
+        updatable.update(dt,exp)
         
  
         for asteroid in asteroids:
             for shot in shots:
                 if shot.check_collision(asteroid) == True:
                     asteroid.split()
+                    exp+=1
+                    print(exp)
                     if isinstance(shot,Shot):
                         shot.kill()
 

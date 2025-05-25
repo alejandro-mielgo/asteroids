@@ -14,7 +14,7 @@ class Shot(CircleShape):
     def draw(self, screen):
         pygame.draw.circle(screen, "green", self.position, self.radius, 0)
 
-    def update(self, dt):
+    def update(self, dt, exp):
         self.position += self.velocity * dt
         if (
             self.position.x < -self.radius
@@ -41,7 +41,7 @@ class Bomb(CircleShape):
     def draw(self,screen):
         pygame.draw.circle(screen, "red", self.position, self.radius, int(self.thickness))
 
-    def update(self, dt):
+    def update(self, dt, exp):
         self.radius += dt*350
         self.thickness += dt*5
         if self.radius>450:
@@ -68,7 +68,7 @@ class Barrier(CircleShape):
     def draw(self,screen):
         pygame.draw.circle(screen, "yellow", self.position, self.radius, int(self.thickness))
 
-    def update(self, dt):
+    def update(self, dt, exp):
         self.position = self.player.position
         self.duration -=dt
         self.thickness -= dt

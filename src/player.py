@@ -14,9 +14,10 @@ class Player(CircleShape):
         self.rotation:float = 0
         self.shoot_cooldown:float = 0
         self.bomb_cooldown:float = 0
-        self.n_bombs:int = 3
-        self.n_barriers:int = 1
-        self.health = 3
+        self.n_bombs:int = 5
+        self.n_barriers:int = 2
+        self.health:int = 3
+        self.invulnerable:bool=False
 
         self.no_ammo_sound = pygame.mixer.Sound("./assets/no_ammo.mp3")
 
@@ -75,7 +76,7 @@ class Player(CircleShape):
         self.n_barriers -=1
 
 
-    def update(self, dt):
+    def update(self, dt, exp):
             self.shoot_cooldown -= dt
             self.bomb_cooldown -= dt
 

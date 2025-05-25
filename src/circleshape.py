@@ -19,14 +19,14 @@ class CircleShape(pygame.sprite.Sprite):
         # sub-classes must override
         pass
 
-    def update(self, dt):
+    def update(self, dt,exp):
         # sub-classes must override
         pass
 
     def check_collision(self, other):
         distance = self.position.distance_to(other.position)
         collided = distance < (self.radius + other.radius)
-        if collided:
-            print(f"[DEBUG] Collision detected: {self} <-> {other} | Distance: {distance:.2f} | Radii sum: {self.radius + other.radius}")
-            print(f"coordinates:({self.position.x,self.position.y}), ({other.position.x},{other.position.y})")
+        # if collided:
+        #     print(f"[DEBUG] Collision detected: {self} <-> {other} | Distance: {distance:.2f} | Radii sum: {self.radius + other.radius}")
+        #     print(f"coordinates:({self.position.x,self.position.y}), ({other.position.x},{other.position.y})")
         return collided
