@@ -4,6 +4,7 @@ from src.asteroid import Asteroid
 from src.asteroidfield import AsteroidField
 from src.shot import Shot, Bomb, Barrier
 from src.constants import *
+from src.uimanager import UIManager
 
 
 def load_sounds() -> None:
@@ -26,12 +27,13 @@ def create_containers()->tuple:
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
 
-    Player.containers = (updatable,drawable)
-    Asteroid.containers = (asteroids,updatable,drawable)
-    Shot.containers = (shots,drawable,updatable)
-    Bomb.containers = (shots,drawable,updatable)
-    Barrier.containers = (shots,drawable,updatable)
+    Player.containers = (updatable, drawable)
+    Asteroid.containers = (asteroids, updatable, drawable)
+    Shot.containers = (shots, drawable, updatable)
+    Bomb.containers = (shots, drawable, updatable)
+    Barrier.containers = (shots, drawable, updatable)
     AsteroidField.containers = (updatable,)
+
 
     return updatable,drawable, asteroids, shots
 
@@ -48,10 +50,12 @@ def main():
     updatable,drawable, asteroids, shots = create_containers()
     player:Player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
+    ui=UIManager(player=player)
 
     running:bool = True
     paused:bool = False
     exp:int = 0
+    level:int=0
 
     while running:
 
@@ -71,6 +75,7 @@ def main():
 
 
         updatable.update(dt,exp)
+        ui.update(dt,exp,level)
         
  
         for asteroid in asteroids:
@@ -78,7 +83,7 @@ def main():
                 if shot.check_collision(asteroid) == True:
                     asteroid.split()
                     exp+=1
-                    print(exp)
+                    level = exp//XP_PER_LEVEL
                     if isinstance(shot,Shot):
                         shot.kill()
 
@@ -93,6 +98,7 @@ def main():
         
         for obj in drawable:
             obj.draw(screen)
+        ui.draw(screen)
         
         pygame.display.flip()
 

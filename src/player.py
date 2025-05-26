@@ -1,9 +1,7 @@
 import pygame
 from src.circleshape import CircleShape
 from src.shot import Shot,Bomb, Barrier
-from src.constants import (PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, 
-                           PLAYER_SHOOT_COOLDOWN, SCREEN_HEIGHT,SCREEN_WIDTH, PLAYER_BOMB_COOLDOWN
-                          ) 
+from src.constants import *
 
 
 
@@ -14,9 +12,10 @@ class Player(CircleShape):
         self.rotation:float = 0
         self.shoot_cooldown:float = 0
         self.bomb_cooldown:float = 0
+        self.barrier_cooldown:float = 0
         self.n_bombs:int = 5
         self.n_barriers:int = 2
-        self.health:int = 3
+        self.health:int = 1
         self.invulnerable:bool=False
 
         self.no_ammo_sound = pygame.mixer.Sound("./assets/no_ammo.mp3")
@@ -69,16 +68,18 @@ class Player(CircleShape):
         self.n_bombs -= 1
 
     def activate_barrier(self):
-        if self.n_barriers<=0:
+        if self.n_barriers<=0 or self.barrier_cooldown>0:
             return
         barrier = Barrier(player=self)
         barrier.velocity = pygame.Vector2(0, 0)
+        self.barrier_cooldown = PLAYER_BARRIER_COOLDOWN
         self.n_barriers -=1
 
 
     def update(self, dt, exp):
             self.shoot_cooldown -= dt
             self.bomb_cooldown -= dt
+            self.barrier_cooldown -= dt
 
             keys = pygame.key.get_pressed()
 

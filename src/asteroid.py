@@ -28,8 +28,10 @@ class Asteroid(CircleShape):
      
 
     def split(self):
+        
         self.kill()
         Asteroid.sound.play()
+
         if self.radius <= ASTEROID_MIN_RADIUS:
             return
         angle = random.uniform(20,50)
