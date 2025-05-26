@@ -44,10 +44,10 @@ class Player(CircleShape):
         self.position.x = self.position.x % SCREEN_WIDTH
         self.position.y = self.position.y % SCREEN_HEIGHT
     
-    def shot(self):
+    def shoot(self):
         if self.shoot_cooldown>0:
             return
-        new_shot = Shot(self.position[0], self.position[1])
+        new_shot = Shot(x=self.position.x, y=self.position.y, player_rotation = self.rotation, piercing=True, triple=True)
         new_shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
  
@@ -66,6 +66,7 @@ class Player(CircleShape):
         barrier = Barrier(player=self, duration=duration)
         barrier.velocity = pygame.Vector2(0, 0)
         self.barrier_cooldown = PLAYER_BARRIER_COOLDOWN
+        self.shoot_cooldown = BARRIER_DURATION  # can't shoot while barrier is active
         self.n_barriers -=1
 
     def update(self, dt, exp):
@@ -91,7 +92,7 @@ class Player(CircleShape):
                 self.drop_bomb()
             
             if keys[pygame.K_SPACE]:
-                self.shot()
+                self.shoot()
             
             if keys[pygame.K_e]:
                 self.activate_barrier()
@@ -109,6 +110,6 @@ class Player(CircleShape):
             self.position.x = SCREEN_WIDTH//2
             self.position.y = SCREEN_HEIGHT//2
             self.invulnerable = True
-            self.invulnerable_cooldown = 1.5
-            barrier = Barrier(player=self, duration=1.5)
+            self.invulnerable_cooldown = PLAYER_INVULNERABILITY_PERIOD
+            barrier = Barrier(player=self, duration=PLAYER_INVULNERABILITY_PERIOD)
             return False

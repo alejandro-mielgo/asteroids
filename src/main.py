@@ -25,17 +25,17 @@ def create_containers()->tuple:
     updatable  = pygame.sprite.Group()
     drawable  = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
-    shots = pygame.sprite.Group()
+    proyectiles = pygame.sprite.Group()
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
-    Shot.containers = (shots, drawable, updatable)
-    Bomb.containers = (shots, drawable, updatable)
-    Barrier.containers = (shots, drawable, updatable)
+    Shot.containers = (proyectiles, drawable, updatable)
+    Bomb.containers = (proyectiles, drawable, updatable)
+    Barrier.containers = (proyectiles, drawable, updatable)
     AsteroidField.containers = (updatable,)
 
 
-    return updatable,drawable, asteroids, shots
+    return updatable,drawable, asteroids, proyectiles
 
 
 def main():
@@ -47,7 +47,7 @@ def main():
     clock = pygame.time.Clock()
     dt = 0
 
-    updatable,drawable, asteroids, shots = create_containers()
+    updatable, drawable, asteroids, proyectiles = create_containers()
     player:Player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
     ui=UIManager(player=player)
@@ -73,19 +73,18 @@ def main():
             dt = clock.tick(5) / 1000
             continue  
 
-
         updatable.update(dt,exp)
-        ui.update(dt,exp,level)
+        ui.update(dt,exp,level) #la ui despues!
         
  
         for asteroid in asteroids:
-            for shot in shots:
-                if shot.check_collision(asteroid) == True:
+            for proyectile in proyectiles:
+                if proyectile.check_collision(asteroid) == True:
                     asteroid.split()
+                    proyectile.manage_collision()
                     exp+=1
                     level = exp // XP_PER_LEVEL
-                    if isinstance(shot,Shot):
-                        shot.kill()
+                   
 
             if player.check_collision(asteroid) == True:
                 if player.take_damage():

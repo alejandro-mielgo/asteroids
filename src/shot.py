@@ -1,16 +1,27 @@
 import pygame
 from src.circleshape import CircleShape
-from src.constants import SHOT_RADIUS, BARRIER_RADIUS, BARRIER_DURATION, SCREEN_WIDTH, SCREEN_HEIGHT
+from src.asteroid import Asteroid
+from src.constants import SHOT_RADIUS, BARRIER_RADIUS, BARRIER_DURATION, SCREEN_WIDTH, SCREEN_HEIGHT,PLAYER_SHOOT_SPEED
 # from src.player import Player
 
 
 class Shot(CircleShape):
 
-    def __init__(self,x,y):
+    def __init__(self,x:float,y:float, player_rotation:float, piercing:bool, triple:bool):
         super().__init__(x,y,SHOT_RADIUS)
         if Shot.sound:
             Shot.sound.play()
+        
+        self.piercing = piercing
+        self.rotation = player_rotation
+        
+        if triple:
+            shot_1 = Shot(x=x,y=y, player_rotation=player_rotation, piercing=piercing, triple=False)
+            shot_1.velocity = pygame.Vector2(0, 1).rotate(self.rotation-10) * PLAYER_SHOOT_SPEED
+            shot_2 = Shot(x=x,y=y, player_rotation=player_rotation, piercing=piercing, triple=False)
+            shot_2.velocity = pygame.Vector2(0, 1).rotate(self.rotation+10) * PLAYER_SHOOT_SPEED
 
+    
     def draw(self, screen):
         pygame.draw.circle(screen, "green", self.position, self.radius, 0)
 
@@ -23,6 +34,11 @@ class Shot(CircleShape):
             or self.position.y > SCREEN_HEIGHT + self.radius
         ):
             self.kill()  # removes from all sprite groups
+
+    def manage_collision(self):
+        if self.piercing == False:
+            self.kill()
+
 
 
 class Bomb(CircleShape):
@@ -46,6 +62,9 @@ class Bomb(CircleShape):
         self.thickness += dt*5
         if self.radius>450:
             self.kill()
+    
+    def manage_collision(self):
+        pass
 
 
 class Barrier(CircleShape):
@@ -74,4 +93,7 @@ class Barrier(CircleShape):
         self.thickness -= dt
         if self.duration<=0:
             self.kill()
+
+    def manage_collision(self):
+        pass
 
