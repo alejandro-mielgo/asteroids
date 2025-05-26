@@ -55,12 +55,12 @@ class Barrier(CircleShape):
         cls.sound = pygame.mixer.Sound(path)
     
 
-    def __init__(self, player):
+    def __init__(self, player, duration:float=BARRIER_DURATION):
         x=player.position[0]
         y=player.position[1]
         super().__init__(x,y,BARRIER_RADIUS)
         self.player = player
-        self.duration = BARRIER_DURATION
+        self.duration = duration
         self.thickness = 7
         if Barrier.sound:
             Barrier.sound.play()

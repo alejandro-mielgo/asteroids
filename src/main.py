@@ -83,17 +83,16 @@ def main():
                 if shot.check_collision(asteroid) == True:
                     asteroid.split()
                     exp+=1
-                    level = exp//XP_PER_LEVEL
+                    level = exp // XP_PER_LEVEL
                     if isinstance(shot,Shot):
                         shot.kill()
 
             if player.check_collision(asteroid) == True:
-                player.health-=1
-                print(f"health down to {player.health}")
-                if player.health<=0:
-                    running=False
+                if player.take_damage():
+                    return
+                
+                
             
-
         screen.fill("black")
         
         for obj in drawable:

@@ -15,8 +15,9 @@ class Player(CircleShape):
         self.barrier_cooldown:float = 0
         self.n_bombs:int = 5
         self.n_barriers:int = 2
-        self.health:int = 1
+        self.n_lifes:int = 3
         self.invulnerable:bool=False
+        self.invulnerable_cooldown:float = 0
 
         self.no_ammo_sound = pygame.mixer.Sound("./assets/no_ammo.mp3")
 
@@ -49,37 +50,31 @@ class Player(CircleShape):
         new_shot = Shot(self.position[0], self.position[1])
         new_shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
-
-       
-    def drop_bomb(self):
-
-        if self.bomb_cooldown>0:
-            return  
-        if self.n_bombs<=0:
-            print('no bombs available')
-            pygame.mixer.Sound.play(self.no_ammo_sound)
-            pygame.mixer.music.stop()
-            return
  
+    def drop_bomb(self):
+        if self.bomb_cooldown>0 or self.n_bombs<=0:
+            return  
 
         new_bomb = Bomb(self.position[0], self.position[1])
         new_bomb.velocity = pygame.Vector2(0, 0)
         self.bomb_cooldown = PLAYER_BOMB_COOLDOWN
         self.n_bombs -= 1
 
-    def activate_barrier(self):
+    def activate_barrier(self, duration=BARRIER_DURATION):
         if self.n_barriers<=0 or self.barrier_cooldown>0:
             return
-        barrier = Barrier(player=self)
+        barrier = Barrier(player=self, duration=duration)
         barrier.velocity = pygame.Vector2(0, 0)
         self.barrier_cooldown = PLAYER_BARRIER_COOLDOWN
         self.n_barriers -=1
-
 
     def update(self, dt, exp):
             self.shoot_cooldown -= dt
             self.bomb_cooldown -= dt
             self.barrier_cooldown -= dt
+            self.invulnerable_cooldown -= dt
+            if self.invulnerable_cooldown<0:
+                self.invulnerable=False
 
             keys = pygame.key.get_pressed()
 
@@ -100,3 +95,20 @@ class Player(CircleShape):
             
             if keys[pygame.K_e]:
                 self.activate_barrier()
+
+    def take_damage(self)->bool:
+
+        if self.invulnerable:
+            return False
+        else:
+            self.n_lifes-=1
+        
+        if self.n_lifes<=0:
+            return True
+        else:
+            self.position.x = SCREEN_WIDTH//2
+            self.position.y = SCREEN_HEIGHT//2
+            self.invulnerable = True
+            self.invulnerable_cooldown = 1.5
+            barrier = Barrier(player=self, duration=1.5)
+            return False
