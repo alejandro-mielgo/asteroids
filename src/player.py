@@ -18,8 +18,10 @@ class Player(CircleShape):
         self.n_lifes:int = 3
         self.invulnerable:bool=False
         self.invulnerable_cooldown:float = 0
+        player_image = pygame.image.load("./assets/sprites/space_ship.png").convert_alpha()
+        self.image = pygame.transform.scale(player_image, (80 , 80))
 
-        self.no_ammo_sound = pygame.mixer.Sound("./assets/no_ammo.mp3")
+        self.no_ammo_sound = pygame.mixer.Sound("./assets/sound/no_ammo.mp3")
 
     def triangle(self)->list[pygame.Vector2]:
         visual_radius:float = self.radius + 10
@@ -32,7 +34,10 @@ class Player(CircleShape):
         return [a, b, c]
     
     def draw(self,screen):
-        pygame.draw.polygon(screen, 'white', self.triangle(), 2)
+        # pygame.draw.polygon(screen, 'white', self.triangle(), 2)
+        rotated_image = pygame.transform.rotate(self.image, -self.rotation)
+        rect = rotated_image.get_rect(center=self.position)
+        screen.blit(rotated_image, rect)
         pygame.draw.circle(screen,'white',self.position,self.radius,1)
 
     def rotate(self,dt):

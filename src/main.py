@@ -9,16 +9,15 @@ from src.uimanager import UIManager
 
 def load_sounds() -> None:
 
-    pygame.init()
     pygame.mixer.init()
-    pygame.mixer.music.load("./assets/music.mp3")
+    pygame.mixer.music.load("./assets/sound/music.mp3")
     pygame.mixer.music.set_volume(0.5)  
     pygame.mixer.music.play(-1)  
 
-    Shot.load_sound("./assets/shot.mp3")
-    Bomb.load_sound("./assets/bomb.mp3")
-    Barrier.load_sound("./assets/barrier.mp3")
-    Asteroid.load_sound("./assets/asteroid_explossion.mp3")
+    Shot.load_sound("./assets/sound/shot.mp3")
+    Bomb.load_sound("./assets/sound/bomb.mp3")
+    Barrier.load_sound("./assets/sound/barrier.mp3")
+    Asteroid.load_sound("./assets/sound/asteroid_explossion.mp3")
 
     
 def create_containers()->tuple:
@@ -41,6 +40,7 @@ def create_containers()->tuple:
 def main():
 
     print('Starting Asteroids!')
+    pygame.init()
     load_sounds()        
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
