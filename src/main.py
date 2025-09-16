@@ -3,6 +3,7 @@ from src.player import Player
 from src.asteroid import Asteroid
 from src.asteroidfield import AsteroidField
 from src.shot import Shot, Bomb, Barrier
+from src.powerup import PowerUp
 from src.constants import *
 from src.uimanager import UIManager
 
@@ -18,24 +19,44 @@ def load_sounds() -> None:
     Bomb.load_sound("./assets/sound/bomb.mp3")
     Barrier.load_sound("./assets/sound/barrier.mp3")
     Asteroid.load_sound("./assets/sound/asteroid_explossion.mp3")
-
-    
+   
 def create_containers()->tuple:
     updatable  = pygame.sprite.Group()
     drawable  = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     proyectiles = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     Shot.containers = (proyectiles, drawable, updatable)
     Bomb.containers = (proyectiles, drawable, updatable)
     Barrier.containers = (proyectiles, drawable, updatable)
+    PowerUp.containers = (powerups, drawable, updatable)
     AsteroidField.containers = (updatable,)
 
 
-    return updatable,drawable, asteroids, proyectiles
+    return updatable,drawable, asteroids, proyectiles, powerups
 
+def manage_asteroid_collisions(asteroids, proyectiles, player, exp):
+    for asteroid in asteroids:
+        for proyectile in proyectiles:
+            if proyectile.check_collision(asteroid) == True:
+                asteroid.split()
+                proyectile.manage_collision()
+                exp+=1
+                level = exp // XP_PER_LEVEL
+
+        if player.check_collision(asteroid) == True:
+            if player.take_damage():
+                return
+
+def manage_powerup_collisions(powerups, player):
+    for powerup in powerups:
+        if player.check_collision(powerup) == True:
+            powerup.powerup_effect(player)
+            powerup.kill()
+                
 
 def main():
 
@@ -47,7 +68,7 @@ def main():
     clock = pygame.time.Clock()
     dt = 0
 
-    updatable, drawable, asteroids, proyectiles = create_containers()
+    updatable, drawable, asteroids, proyectiles, powerups = create_containers()
     player:Player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroidfield = AsteroidField()
     ui=UIManager(player=player)
@@ -76,22 +97,9 @@ def main():
         updatable.update(dt,exp)
         ui.update(dt,exp,level) #la ui despues!
         
- 
-        for asteroid in asteroids:
-            for proyectile in proyectiles:
-                if proyectile.check_collision(asteroid) == True:
-                    asteroid.split()
-                    proyectile.manage_collision()
-                    exp+=1
-                    level = exp // XP_PER_LEVEL
-                   
-
-            if player.check_collision(asteroid) == True:
-                if player.take_damage():
-                    return
-                
-                
-            
+        manage_asteroid_collisions(asteroids, proyectiles, player, exp)
+        manage_powerup_collisions(powerups, player)
+                  
         screen.fill("black")
         
         for obj in drawable:

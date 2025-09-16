@@ -1,6 +1,6 @@
 import pygame
 from src.circleshape import CircleShape
-from src.shot import Shot,Bomb, Barrier
+from src.shot import Shot, Bomb, Barrier
 from src.constants import *
 
 
@@ -18,9 +18,11 @@ class Player(CircleShape):
         self.n_lifes:int = 3
         self.invulnerable:bool=False
         self.invulnerable_cooldown:float = 0
+        self.piercing_shot:bool = False
+        self.triple_shoot:bool = False
+
         player_image = pygame.image.load("./assets/sprites/space_ship.png").convert_alpha()
         self.image = pygame.transform.scale(player_image, (80 , 80))
-
         self.no_ammo_sound = pygame.mixer.Sound("./assets/sound/no_ammo.mp3")
 
     def triangle(self)->list[pygame.Vector2]:
@@ -52,7 +54,11 @@ class Player(CircleShape):
     def shoot(self):
         if self.shoot_cooldown>0:
             return
-        new_shot = Shot(x=self.position.x, y=self.position.y, player_rotation = self.rotation, piercing=True, triple=True)
+        new_shot = Shot(x=self.position.x, 
+                        y=self.position.y, 
+                        player_rotation = self.rotation, 
+                        piercing=self.piercing_shot, 
+                        triple=self.triple_shoot)
         new_shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
  
@@ -108,6 +114,8 @@ class Player(CircleShape):
             return False
         else:
             self.n_lifes-=1
+            if self.n_lifes<=0:
+                pygame.quit()
         
         if self.n_lifes<=0:
             return True
