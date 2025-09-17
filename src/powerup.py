@@ -11,15 +11,25 @@ powerup_colours = {
     'piercing_shot': 'green',
     'triple_shot': 'purple'
 }
+powerup_sprites = {
+    'bomb': "./assets/sprites/bomb.png",
+    'barrier': "./assets/sprites/barrier.png",
+    'life': "./assets/sprites/heart.png",
+    'piercing_shot': "./assets/sprites/piercing.png",
+    'triple_shot': "./assets/sprites/triple_shot.png"
+}
 
 class PowerUp(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, POWERUP_RADIUS)
         self.kind = random.choice(powerup_kinds)
         self.colour = powerup_colours[self.kind]
+        self.image = pygame.transform.scale(pygame.image.load(powerup_sprites[self.kind]).convert_alpha(), (POWERUP_RADIUS*2, POWERUP_RADIUS*2))
 
     def draw(self,screen):
         pygame.draw.circle(screen,self.colour,self.position,self.radius,3)
+        rect = self.image.get_rect(center=self.position)
+        screen.blit(self.image, rect)
     
     def powerup_effect(self, player):
         if self.kind == 'bomb':
